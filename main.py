@@ -77,3 +77,23 @@ if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8000))
     uvicorn.run(app, host="0.0.0.0", port=port)
+from pydantic import BaseModel
+from typing import List
+from fastapi import FastAPI, HTTPException
+
+app = FastAPI()
+todos: List[dict] = []
+
+class Todo(BaseModel):
+    id: int
+    text: str
+    completed: bool = False
+
+@app.post("/todos", response_model=Todo)
+def create_todo(todo: Todo):
+    todos.append(todo.dict())
+    return todo
+
+@app.get("/todos")
+def get_todos() -> List[Todo]:
+    return todos
